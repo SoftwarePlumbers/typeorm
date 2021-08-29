@@ -45,6 +45,11 @@ export class PostgresDriver implements Driver {
     postgres: any;
 
     /**
+     * Postgres type mapper
+     */
+    types: any;
+
+    /**
      * Pool for master database.
      */
     master: any;
@@ -357,6 +362,15 @@ export class PostgresDriver implements Driver {
         return Promise.resolve();
     }
 
+    getTypeParser(oid: number, ...rest: any[]) : (param: string) => any {
+        const baseTypes = this.postgres.types;        
+        if (oid === baseTypes.builtins.JSON || oid === baseTypes.builtins.JSONB) {
+            return (v : any) => v;
+        } else {
+          return baseTypes.getTypeParser(oid, ...rest);
+        }
+    }      
+
     protected async enableExtensions(extensionsMetadata: any, connection: any) {
         const { logger } = this.connection;
 
@@ -504,8 +518,11 @@ export class PostgresDriver implements Driver {
             return DateUtils.mixedDateToDate(value);
 
         } else if (["json", "jsonb", ...this.spatialTypes].indexOf(columnMetadata.type) >= 0) {
-            return JSON.stringify(value);
-
+            if (columnMetadata.jsonType === 'object') {
+                return JSON.stringify(value);
+            } else {
+                return value;
+            }
         } else if (columnMetadata.type === "hstore") {
             if (typeof value === "string") {
                 return value;
@@ -588,7 +605,10 @@ export class PostgresDriver implements Driver {
             } else {
                 return value;
             }
-
+        } else if (["json", "jsonb", ...this.spatialTypes].indexOf(columnMetadata.type) >= 0) {
+            if (columnMetadata.jsonType === 'object') {
+                value = JSON.parse(value);
+            } 
         } else if (columnMetadata.type === "simple-array") {
             value = DateUtils.stringToSimpleArray(value);
 
@@ -1189,7 +1209,9 @@ export class PostgresDriver implements Driver {
     protected executeQuery(connection: any, query: string) {
         return new Promise((ok, fail) => {
             this.connection.logger.logQuery(query);
-            connection.query(query, (err: any, result: any) => {
+            connection.query(
+                { text: query, types: { getTypeParser : (oid : number, ...rest: any[]) => this.getTypeParser(oid, ...rest)}  }, 
+                (err: any, result: any) => {
                 if (err) return fail(err);
                 ok(result);
             });
