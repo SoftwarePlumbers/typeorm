@@ -1,7 +1,7 @@
 {
   "name": "typeorm",
   "private": true,
-  "version": "0.2.37",
+  "version": "0.2.37-jsonPassthrough",
   "description": "Data-Mapper ORM for TypeScript, ES7, ES6, ES5. Supports MySQL, PostgreSQL, MariaDB, SQLite, MS SQL Server, Oracle, MongoDB databases.",
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -74,7 +74,6 @@
     "@types/yargs": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "better-sqlite3": "^7.1.2",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
     "class-transformer": "^0.4.0",
@@ -116,7 +115,6 @@
   },
   "peerDependencies": {
     "@sap/hana-client": "*",
-    "better-sqlite3": "*",
     "hdb-pool": "*",
     "ioredis": "*",
     "mongodb": "^3.6.0",
@@ -133,9 +131,6 @@
   },
   "peerDependenciesMeta": {
     "@sap/hana-client": {
-      "optional": true
-    },
-    "better-sqlite3": {
       "optional": true
     },
     "hdb-pool": {
@@ -181,6 +176,7 @@
   "dependencies": {
     "@sqltools/formatter": "^1.2.2",
     "app-root-path": "^3.0.0",
+    "better-sqlite3": "^7.4.3",
     "buffer": "^6.0.3",
     "chalk": "^4.1.0",
     "cli-highlight": "^2.1.11",
@@ -213,9 +209,11 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 1"
   },
   "bin": {
-    "typeorm": "./cli.js"
+    "typeorm": "cli.js"
   },
-  "funding": "https://opencollective.com/typeorm",
+  "funding": {
+    "url": "https://opencollective.com/typeorm"
+  },
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/typeorm",
